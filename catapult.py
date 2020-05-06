@@ -25,7 +25,9 @@ radius = 5  # ball radius
 Sx = 4  # from launch point to target center
 S_bucket = Sx - 0.6035  # from launch point to nearest target
 cal = Calculation(S_bucket)
+
 rpm = 90  # round per minute
+degree_per_frame = rpm * 0.001 / 60
 
 speed = 1  # view speed
 speed_btn = Button(950, 40, 70, 50)
@@ -46,7 +48,7 @@ top = pg.transform.scale(top, (int(1.364 * Pxt), int(1.364 * Pxt)))
 
 data, theta, time = cal.plot()  # data = [Sx, Sy, Vx, Vy, V] *s from launch point
 
-launch = False
+# launch = False
 
 while 1:
     for plot in data:
