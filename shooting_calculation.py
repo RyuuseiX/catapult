@@ -1,7 +1,7 @@
 from math import sin, cos, sqrt, radians
 
 
-class Calculation():
+class Calculation:
     def __init__(self, sx=2):
         self.sx = sx  # meter
         self.sy = 0  # meter
@@ -53,8 +53,10 @@ class Calculation():
         data = []
         total_time = self.sx / velocity[0]
 
-        while time <= total_time:  # plot sx,sy,vx,vy at time step by 0.001 sec or 1 milli sec
-            data.append([velocity[0] * time, velocity[1] * time - 0.5 * self.gravity * time ** 2, velocity[0], velocity[1] - self.gravity * time])  # [Sx, Sy, Vx, Vy]
-            time += 0.001  # step by 1 milli sec
+        while time <= total_time :  # plot sx,sy,vx,vy at time step by 0.001 sec or 1 milli sec
+            data.append([velocity[0] * time, velocity[1] * time - 0.5 * self.gravity * time ** 2, velocity[0], velocity[1] - self.gravity * time, velocity[2]])  # [Sx, Sy, Vx, Vy, V]
+            time += 0.001   # step by 1 milli sec
 
         return data, theta, total_time
+
+
