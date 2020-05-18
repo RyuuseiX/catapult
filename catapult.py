@@ -1,11 +1,9 @@
 import pygame as pg
-import math
 from shooting_calculation import Calculation
 from text import Text
 from button import Button
 
 pg.init()
-
 
 win_x, win_y = 1440, 768
 posiX, posiY = 50, 600
@@ -27,7 +25,7 @@ S_bucket = Sx - 0.6035  # from launch point to nearest target
 cal = Calculation(S_bucket)
 
 rpm = 90  # round per minute
-degree_per_frame = rpm * 0.001 / 60
+degree_per_frame = rpm * 0.001 / 60 * 360
 
 speed = 1  # view speed
 speed_btn = Button(950, 40, 70, 50)
@@ -44,29 +42,43 @@ top_path = './pic/top.png'
 side = pg.image.load(side_path)
 top = pg.image.load(top_path)
 side = pg.transform.scale(side, (int(1.364 * Pxs), int(0.5 * Pxs)))
-top = pg.transform.scale(top, (int(1.364 * Pxt), int(1.364 * Pxt)))
 
-data, theta, time = cal.plot()  # data = [Sx, Sy, Vx, Vy, V] *s from launch point
+data, theta, total_time = cal.plot()  # data = [Sx, Sy, Vx, Vy, V] *s from launch point
+angle = 0
 
-# launch = False
+print(total_time)
 
 while 1:
-    for plot in data:
+    launch = False
+    launch_time = 0
+    wait_time = 1 / (rpm / 60) - total_time
+    if wait_time <= 0:
+        wait_time += 1 / (rpm / 60)
+    print(wait_time)
+    time = 0
+    plot = 0
+
+    while plot < len(data):
+        if launch is False:  # wait for the right time
+            plot = 0
+
         Screen.fill(white)
 
         # text
-        Sx_txt = Text(Screen, 'Sx = ' + '%.2f' % plot[0] + ' meter', 20)
+        Sx_txt = Text(Screen, 'Sx = ' + '%.3f' % data[plot][0] + ' meter', 20)
         Sx_txt.write_tl(40, 40)
-        Sy_txt = Text(Screen, 'Sy = ' + '%.2f' % plot[1] + ' meter', 20)
+        Sy_txt = Text(Screen, 'Sy = ' + '%.3f' % data[plot][1] + ' meter', 20)
         Sy_txt.write_tl(40, 60)
-        Vx_txt = Text(Screen, 'Vx = ' + '%.2f' % plot[2] + ' meter/sec', 20)
+        Vx_txt = Text(Screen, 'Vx = ' + '%.3f' % data[plot][2] + ' meter/sec', 20)
         Vx_txt.write_tl(40, 80)
-        Vy_txt = Text(Screen, 'Vy = ' + '%.2f' % plot[3] + ' meter/sec', 20)
+        Vy_txt = Text(Screen, 'Vy = ' + '%.3f' % data[plot][3] + ' meter/sec', 20)
         Vy_txt.write_tl(40, 100)
-        V_txt = Text(Screen, 'V = ' + '%.2f' % plot[4] + ' meter/sec', 20)
+        V_txt = Text(Screen, 'V = ' + '%.3f' % data[plot][4] + ' meter/sec', 20)
         V_txt.write_tl(40, 120)
         angle_txt = Text(Screen, 'angle = ' + str(theta) + ' degree', 20)
         angle_txt.write_tl(40, 140)
+        time_txt = Text(Screen, 'time = ' + '%.3f' % time + ' sec', 20)
+        time_txt.write_tl(40, 160)
 
         # button
         speed_btn.draw(Screen, 'x' + str(speed))
@@ -80,17 +92,27 @@ while 1:
 
                 pg.time.delay(100)  # debounced button
 
-        degree_per_frame = rpm / 3600 * 0.001
-
         pg.draw.line(Screen, red, (1050, 0), (1050, 768), 2)  # line between side and top view
 
         # bucket
-        Screen.blit(side, (posiX + S_bucket_Pxs - 0.0785 * Pxs, posiY))
-        Screen.blit(top, (posiX2 - 1.36 * Pxt / 2, 750 - posiX - (Sx + 0.6035) * Pxt))
+        Screen.blit(side, (posiX + S_bucket_Pxs - 0.0785 * Pxs, posiY))  # side
+        rot_top = pg.transform.rotate(top, angle)
+        Screen.blit(rot_top, (posiX2 - int(rot_top.get_width()) / 2, 770 - posiX - int(rot_top.get_height() / 2) - Sx * Pxt))  # top
+
+        angle += degree_per_frame if angle < 360 else - 360 + degree_per_frame
+
+        if launch_time >= wait_time:
+            launch = True
 
         # ball
-        pg.draw.circle(Screen, black, (posiX + Pxs * plot[0], posiY - Pxs * plot[1]), radius)  # side
-        pg.draw.circle(Screen, black, (posiX2, 750 - posiX - plot[0] * Pxt), radius)  # top
+        pg.draw.circle(Screen, red, (posiX, posiY), radius)
+        pg.draw.circle(Screen, black, (posiX + Pxs * data[plot][0], posiY - Pxs * data[plot][1]), radius)  # side
+        pg.draw.circle(Screen, red, (posiX2, 770 - posiX), radius) #
+        pg.draw.circle(Screen, black, (posiX2, 770 - posiX - data[plot][0] * Pxt), radius)  # top
+
+        time += 0.001
+        launch_time += 0.001
+        plot += 1
 
         pg.time.delay(int(1 / speed))
 
@@ -101,6 +123,6 @@ while 1:
                 pg.quit()
                 exit()
 
-    pg.time.delay(500)
+    pg.time.delay(1000)
 
 

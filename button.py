@@ -17,7 +17,6 @@ class Rec(Text):
             textOnButton.write_c(self.x + self.w / 2, self.y + self.h/ 2)
 
 
-
 class Button(Rec):
     def __init__(self, x=0, y=0, w=0, h=0):
         Rec.__init__(self, x, y, w, h)

@@ -25,7 +25,7 @@ S_bucket_Pxt = S_bucket * Pxt
 side_path = './pic/side.png'
 top_path = './pic/top.png'
 side = pg.image.load(side_path).convert()
-top = pg.image.load(top_path).convert()
+top = pg.image.load(top_path)
 side = pg.transform.scale(side, (int(1.36 * Pxs), int(0.5 * Pxs)))
 top = pg.transform.scale(top, (int(1.36 * Pxt),int(1.36 * Pxt)))
 
@@ -43,7 +43,7 @@ while 1:
 
     Screen.fill(white)
     rot_top = pg.transform.rotate(top, angle)
-    Screen.blit(rot_top, (posiX2 - 1.36 * Pxt / 2, 750 - posiX - (Sx + 0.6035) * Pxt))
+    Screen.blit(rot_top, (posiX2 - int(rot_top.get_width()) / 2, posiX + 103 - int(rot_top.get_height() / 2)))
     if angle < 360:
         angle += degree_per_frame
     else:
